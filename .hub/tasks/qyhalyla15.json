@@ -5,11 +5,11 @@
     "package.json",
     "src/**"
   ],
-  "status": "claimed",
+  "status": "done",
   "owner": "imortis",
   "declaredInterface": "REST API: /api/categories, /api/transactions, /api/budgets, /api/overview/summary, /api/overview/trends",
   "assumptions": "No auth/single-user. SQLite file DB via better-sqlite3. No frontend, backend only.",
-  "rationale": null,
+  "rationale": "Built Express + better-sqlite3 backend with layered structure (routes -> controllers -> models -> db). Modules: categories (CRUD), transactions (CRUD with filters/pagination), budgets (CRUD + spent/remaining/percentUsed per month), overview (summary + monthly trends). Zod validation middleware on all inputs, centralized ApiError + errorHandler for consistent JSON error responses, seed script for sample data. No auth (single-user, per user's choice). Verified via live curl smoke test: health, category list, overview summary, budget utilization, transaction list/create/validation-error/404, and monthly trends all returned correct JSON.",
   "createdAt": 1788550346118,
-  "updatedAt": 1788550355565
+  "updatedAt": 1788550873435
 }
