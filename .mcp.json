@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "hub": {
-      "type": "stdio",
-      "command": "hub-server",
-      "args": []
-    }
-  }
-}
