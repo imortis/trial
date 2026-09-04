@@ -1,0 +1,17 @@
+{
+  "id": "xrsg9jz56e",
+  "title": "FocusFlow: Timer + Settings pages (HTML/CSS/JS)",
+  "scope": [
+    "index.html",
+    "settings.html",
+    "style.css",
+    "app.js"
+  ],
+  "status": "todo",
+  "owner": null,
+  "declaredInterface": "Static HTML/CSS/JS app. localStorage keys: focusflow_settings (timer durations, theme, sound/notify prefs), focusflow_session (current session state)",
+  "assumptions": "tasks.html and stats.html are out of scope for now per user request; will be built later and will consume the same shared style.css/app.js and localStorage schema.",
+  "rationale": null,
+  "createdAt": 1788554799071,
+  "updatedAt": 1788554799071
+}
