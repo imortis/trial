@@ -7,11 +7,11 @@
     "style.css",
     "app.js"
   ],
-  "status": "todo",
-  "owner": null,
+  "status": "claimed",
+  "owner": "imortis",
   "declaredInterface": "Static HTML/CSS/JS app. localStorage keys: focusflow_settings (timer durations, theme, sound/notify prefs), focusflow_session (current session state)",
   "assumptions": "tasks.html and stats.html are out of scope for now per user request; will be built later and will consume the same shared style.css/app.js and localStorage schema.",
   "rationale": null,
   "createdAt": 1788554799071,
-  "updatedAt": 1788554799071
+  "updatedAt": 1788554814074
 }
