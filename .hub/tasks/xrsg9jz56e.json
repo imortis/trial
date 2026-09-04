@@ -7,11 +7,11 @@
     "style.css",
     "app.js"
   ],
-  "status": "claimed",
+  "status": "done",
   "owner": "imortis",
   "declaredInterface": "Static HTML/CSS/JS app. localStorage keys: focusflow_settings (timer durations, theme, sound/notify prefs), focusflow_session (current session state)",
   "assumptions": "tasks.html and stats.html are out of scope for now per user request; will be built later and will consume the same shared style.css/app.js and localStorage schema.",
-  "rationale": null,
+  "rationale": "Built index.html (Pomodoro-style timer: focus/short/long-break modes, SVG progress ring, start/pause/reset/skip, session dots, current-task field) and settings.html (durations, auto-start, sound, browser notifications with permission flow, theme). Shared style.css (light/dark via CSS vars + prefers-color-scheme) and app.js (localStorage settings helpers, theme apply, time formatting, chime via Web Audio, notification helper). Timer state persists across reloads using an endAt timestamp so it stays accurate even if the tab is backgrounded. tasks.html/stats.html left unbuilt as requested; nav links to them are present but disabled.",
   "createdAt": 1788554799071,
-  "updatedAt": 1788554814074
+  "updatedAt": 1788555071753
 }
