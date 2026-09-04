@@ -1,7 +1,4 @@
 {
-  "mcpServers": {
-    "hub": { "command": "hub-server" }
-  },
   "hooks": {
     "SessionStart": [
       { "hooks": [{ "type": "command", "command": "bash hooks/claude-code/session-start.sh" }] }
