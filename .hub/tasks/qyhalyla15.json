@@ -1,0 +1,15 @@
+{
+  "id": "qyhalyla15",
+  "title": "Budget dashboard backend (Express + SQLite)",
+  "scope": [
+    "package.json",
+    "src/**"
+  ],
+  "status": "todo",
+  "owner": null,
+  "declaredInterface": "REST API: /api/categories, /api/transactions, /api/budgets, /api/overview/summary, /api/overview/trends",
+  "assumptions": "No auth/single-user. SQLite file DB via better-sqlite3. No frontend, backend only.",
+  "rationale": null,
+  "createdAt": 1788550346118,
+  "updatedAt": 1788550346118
+}
