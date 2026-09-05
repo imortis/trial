@@ -1,0 +1,11 @@
+{
+  "id": "9fjyfq4a73",
+  "member": "imortis",
+  "kind": "editing",
+  "detail": "Adding comprehensive group member balance summary view showing total paid, share consumed, net balance, and individual settle-up instructions",
+  "files": [
+    "frontend/src/components/BalancesView.jsx",
+    "frontend/src/App.jsx"
+  ],
+  "createdAt": 1788595451130
+}
