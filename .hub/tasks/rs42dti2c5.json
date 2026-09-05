@@ -7,11 +7,11 @@
     "style.css",
     "app.js"
   ],
-  "status": "todo",
-  "owner": null,
+  "status": "claimed",
+  "owner": "imortis",
   "declaredInterface": null,
   "assumptions": null,
   "rationale": null,
   "createdAt": 1788581648960,
-  "updatedAt": 1788581648960
+  "updatedAt": 1788581782489
 }
