@@ -1,0 +1,12 @@
+{
+  "id": "pcgfjzg1ie",
+  "member": "imortis",
+  "filePath": "backend/src/store.js",
+  "summary": "In-memory expense store; people list is derived, not stored separately",
+  "reasoning": "No DB yet - swap this file for real persistence later without touching routes. listPeople() scans expenses rather than maintaining a people table since there's no standalone \"add person\" flow.",
+  "anchor": {
+    "path": "backend/src/store.js",
+    "commitHash": "8f5d8bb262b696f816cbf0fb868c672f36b97567"
+  },
+  "createdAt": 1788593169263
+}
