@@ -1,0 +1,12 @@
+{
+  "id": "k3tnpe2qwz",
+  "member": "imortis",
+  "filePath": "frontend/src/App.jsx",
+  "summary": "Main application shell orchestrating expenses, balances, people, and toast notifications",
+  "reasoning": "Centralizes API state synchronization, backend health checks, and user alerts across the dashboard.",
+  "anchor": {
+    "path": "frontend/src/App.jsx",
+    "commitHash": "f4bd4447531305685682e408630729b9df9527c1"
+  },
+  "createdAt": 1788594412562
+}
