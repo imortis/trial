@@ -2,6 +2,9 @@
   "hooks": {
     "SessionStart": [
       { "hooks": [{ "type": "command", "command": "bash hooks/claude-code/session-start.sh" }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "bash hooks/claude-code/pre-edit-check.sh" }] }
     ]
   }
 }
