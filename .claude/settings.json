@@ -1,10 +1,10 @@
 {
   "hooks": {
     "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "bash hooks/claude-code/session-start.sh" }] }
+      { "hooks": [{ "type": "command", "command": "node hooks/claude-code/session-start.mjs" }] }
     ],
     "PreToolUse": [
-      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "bash hooks/claude-code/pre-edit-check.sh" }] }
+      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "node hooks/claude-code/pre-edit-check.mjs" }] }
     ]
   }
 }
