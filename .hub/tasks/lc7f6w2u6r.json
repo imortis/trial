@@ -5,12 +5,12 @@
     "frontend/src/components/BalancesView.jsx",
     "frontend/src/components/MemberBalancesSummary.jsx"
   ],
-  "status": "todo",
+  "status": "in_progress",
   "owner": null,
   "declaredInterface": "No interface change - internal fix only, reading balances.pairwise instead of the nonexistent balances.settlements.",
   "assumptions": "A teammate's recent commit (adding MemberBalancesSummary.jsx and reworking BalancesView.jsx tabs) was based on an older copy of BalancesView.jsx and reintroduced `balances.settlements`, which the backend stopped returning earlier this session (renamed to `pairwise`). This silently breaks the Settle Up tab and per-member outgoing/incoming lists (always empty). Fixing field references only, not touching the new summary UI/UX.",
   "completion": null,
   "abandonReason": null,
   "createdAt": 1788595795849,
-  "updatedAt": 1788595795849
+  "updatedAt": 1788595833341
 }
