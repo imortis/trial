@@ -1,0 +1,10 @@
+{
+  "id": "mz267inu2h",
+  "member": "imortis",
+  "kind": "started",
+  "detail": "Planning and designing frontend architecture for expense splitter (Vite + React + Tailwind CSS with expense tracking, participant management, and settlement visualizer)",
+  "files": [
+    "frontend/"
+  ],
+  "createdAt": 1788594091768
+}
