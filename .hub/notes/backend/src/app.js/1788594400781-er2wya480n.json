@@ -1,0 +1,12 @@
+{
+  "id": "er2wya480n",
+  "member": "imortis",
+  "filePath": "backend/src/app.js",
+  "summary": "Added CORS headers and preflight handling middleware",
+  "reasoning": "Allows Vite frontend dev server (port 5173) and other clients to make REST requests directly to the Express server.",
+  "anchor": {
+    "path": "backend/src/app.js",
+    "commitHash": "81e1c54c3282f0a45dac8c2ecd276061b5330e7e"
+  },
+  "createdAt": 1788594400781
+}
