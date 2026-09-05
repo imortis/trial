@@ -5,12 +5,84 @@
     "backend/",
     "package.json"
   ],
-  "status": "in_progress",
+  "status": "done",
   "owner": null,
   "declaredInterface": "POST /expenses {paidBy, amount, description, splitBetween[]} -> expense; GET /expenses -> list; GET /balances -> {owes: [{from, to, amount}]}; GET /people -> list",
   "assumptions": "Node.js + Express REST API, in-memory data store for now (no DB), equal-split among selected people per expense. Frontend to follow later.",
-  "completion": null,
+  "completion": {
+    "whatWasBuilt": "Express REST API backend for a group expense splitter: add expenses (payer, amount, equal split among named participants), list/delete expenses, list known people, and a balances endpoint that returns both net per-person balances and a minimized 'who pays who' settlement list. In-memory store, fully unit-tested balance/settlement math, manually verified end-to-end with curl.",
+    "decisions": [
+      {
+        "decision": "Equal-split only for v1",
+        "why": "Matches the user's initial ask; custom/percentage splits add complexity not yet requested",
+        "alternativesConsidered": "Supporting arbitrary per-person amounts from the start"
+      },
+      {
+        "decision": "All money math done in integer cents internally",
+        "why": "Avoids floating point drift (e.g. $0.1+$0.2 bugs) when splitting amounts; leftover pennies from uneven splits go to the first N participants",
+        "alternativesConsidered": "Doing math directly in float dollars"
+      },
+      {
+        "decision": "GET /balances returns a simplified settlement list (greedy largest-debtor-vs-largest-creditor) in addition to raw net balances",
+        "why": "User asked to 'see who owes who' - a minimized settle-up list is more directly useful than a raw pairwise transaction ledger",
+        "alternativesConsidered": "Only exposing net balance per person and leaving simplification to the frontend"
+      },
+      {
+        "decision": "No separate people/add-person endpoint; people are derived from expense payer/participant fields",
+        "why": "Keeps API surface minimal until a real need (e.g. a people-management UI) appears",
+        "alternativesConsidered": "A dedicated People collection with its own CRUD"
+      }
+    ],
+    "filesChanged": [
+      {
+        "path": "backend/package.json",
+        "purpose": "Project manifest, express dependency, npm scripts (start/dev/test)"
+      },
+      {
+        "path": "backend/src/app.js",
+        "purpose": "Express app factory wiring routes + JSON middleware, for testability"
+      },
+      {
+        "path": "backend/src/server.js",
+        "purpose": "Entry point, starts the HTTP server on PORT (default 3001)"
+      },
+      {
+        "path": "backend/src/store.js",
+        "purpose": "In-memory expense storage + CRUD + derived people list"
+      },
+      {
+        "path": "backend/src/balances.js",
+        "purpose": "Pure net-balance computation and greedy debt-simplification logic"
+      },
+      {
+        "path": "backend/src/routes/expenses.js",
+        "purpose": "POST/GET/GET:id/DELETE:id /expenses with payload validation"
+      },
+      {
+        "path": "backend/src/routes/balances.js",
+        "purpose": "GET /balances -> {net, settlements}"
+      },
+      {
+        "path": "backend/src/routes/people.js",
+        "purpose": "GET /people"
+      },
+      {
+        "path": "backend/test/balances.test.js",
+        "purpose": "Unit tests for net balance math and debt simplification (node:test)"
+      },
+      {
+        "path": "backend/README.md",
+        "purpose": "API docs and run instructions"
+      },
+      {
+        "path": "backend/.gitignore",
+        "purpose": "Excludes node_modules"
+      }
+    ],
+    "knownLimitations": "No persistence (in-memory, resets on restart), no auth, single implicit currency, equal splits only, no multi-group support.",
+    "nextSteps": "Build the frontend to consume this API (add-expense form, expense list, balances/settle-up view). Consider adding persistence (SQLite/file-based) if the group's data needs to survive restarts."
+  },
   "abandonReason": null,
   "createdAt": 1788592952457,
-  "updatedAt": 1788592961690
+  "updatedAt": 1788593191308
 }
