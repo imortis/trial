@@ -1,0 +1,17 @@
+{
+  "id": "rs42dti2c5",
+  "title": "FocusFlow: Tasks and Stats pages (HTML/CSS/JS)",
+  "scope": [
+    "tasks.html",
+    "stats.html",
+    "style.css",
+    "app.js"
+  ],
+  "status": "todo",
+  "owner": null,
+  "declaredInterface": null,
+  "assumptions": null,
+  "rationale": null,
+  "createdAt": 1788581648960,
+  "updatedAt": 1788581648960
+}
