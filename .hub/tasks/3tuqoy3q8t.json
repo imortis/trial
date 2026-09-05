@@ -5,12 +5,12 @@
     "backend/",
     "package.json"
   ],
-  "status": "todo",
+  "status": "in_progress",
   "owner": null,
   "declaredInterface": "POST /expenses {paidBy, amount, description, splitBetween[]} -> expense; GET /expenses -> list; GET /balances -> {owes: [{from, to, amount}]}; GET /people -> list",
   "assumptions": "Node.js + Express REST API, in-memory data store for now (no DB), equal-split among selected people per expense. Frontend to follow later.",
   "completion": null,
   "abandonReason": null,
   "createdAt": 1788592952457,
-  "updatedAt": 1788592952457
+  "updatedAt": 1788592961690
 }
