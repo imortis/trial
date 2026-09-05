@@ -13,7 +13,7 @@ import {
 
 export default function MemberBalancesSummary({
   expenses = [],
-  balances = { net: {}, settlements: [] },
+  balances = { net: {}, pairwise: [] },
   people = [],
 }) {
   const [copied, setCopied] = useState(false);
@@ -38,9 +38,9 @@ export default function MemberBalancesSummary({
     // Net balance from backend or computed
     const net = balances?.net?.[person] !== undefined ? balances.net[person] : totalPaid - totalShare;
 
-    // Incoming and outgoing settlements
-    const outgoing = (balances?.settlements || []).filter((s) => s.from === person);
-    const incoming = (balances?.settlements || []).filter((s) => s.to === person);
+    // Incoming and outgoing pairwise balances
+    const outgoing = (balances?.pairwise || []).filter((s) => s.from === person);
+    const incoming = (balances?.pairwise || []).filter((s) => s.to === person);
 
     return {
       name: person,
