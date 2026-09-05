@@ -1,0 +1,18 @@
+{
+  "id": "lgb0v5b8db",
+  "title": "Simplify /balances to pairwise balances (drop debt-minimization)",
+  "scope": [
+    "backend/src/balances.js",
+    "backend/src/routes/balances.js",
+    "backend/test/balances.test.js",
+    "backend/README.md"
+  ],
+  "status": "todo",
+  "owner": null,
+  "declaredInterface": "GET /balances -> {net: {person: amount}, pairwise: [{from, to, amount}]} (replaces the greedy-minimized `settlements` list with direct pairwise net balances between each pair of people)",
+  "assumptions": "User asked to replace the transaction-minimizing settle-up algorithm with straightforward pairwise balances (net debt between each pair of people who've shared an expense together), dropping simplifyDebts.",
+  "completion": null,
+  "abandonReason": null,
+  "createdAt": 1788594851054,
+  "updatedAt": 1788594851054
+}
