@@ -6,12 +6,37 @@
     "frontend/src/components/BalancesView.jsx",
     "frontend/src/components/StatsCards.jsx"
   ],
-  "status": "in_progress",
+  "status": "done",
   "owner": null,
   "declaredInterface": "No new interface - frontend now reads `balances.pairwise` instead of the removed `balances.settlements`, matching the backend's GET /balances response shape after the pairwise-balances change.",
   "assumptions": "Backend GET /balances was just changed (by me, this session) to return {net, pairwise} instead of {net, settlements}. The frontend (just pushed by a teammate) still references `settlements` in 3 files, which would silently break the Settle Up view. Fixing references only, not changing any UI/UX behavior.",
-  "completion": null,
+  "completion": {
+    "whatWasBuilt": "Updated the frontend (App.jsx, BalancesView.jsx, StatsCards.jsx) to read balances.pairwise instead of the removed balances.settlements field, and refreshed related copy that described 'greedy debt minimization' / 'minimum transactions' since that's no longer what the backend computes.",
+    "decisions": [
+      {
+        "decision": "Kept internal variable/state names like `settlements` and the 'Settle Up' tab label in BalancesView.jsx",
+        "why": "Only the API field name changed (settlements -> pairwise); the UI concept of a settle-up list is still valid, just backed by pairwise (not minimized) data now",
+        "alternativesConsidered": "Renaming every internal identifier to 'pairwise' for consistency - rejected as unnecessary churn"
+      }
+    ],
+    "filesChanged": [
+      {
+        "path": "frontend/src/App.jsx",
+        "purpose": "Default/fallback balances state now uses pairwise: [] instead of settlements: []"
+      },
+      {
+        "path": "frontend/src/components/StatsCards.jsx",
+        "purpose": "Reads balances.pairwise for the stat count; renamed card title from 'Simplified Settle-ups' to 'Open Balances' to match new semantics"
+      },
+      {
+        "path": "frontend/src/components/BalancesView.jsx",
+        "purpose": "Reads balances.pairwise; updated descriptive copy that referenced debt minimization/minimum transactions"
+      }
+    ],
+    "knownLimitations": "Verified with npm run build (succeeds) and a manual browser check of the empty-state UI; did not click through adding expenses in the browser end-to-end since backend logic was already unit-tested and curl-verified.",
+    "nextSteps": "None - frontend and backend are back in sync on the balances API shape."
+  },
   "abandonReason": null,
   "createdAt": 1788595070659,
-  "updatedAt": 1788595081806
+  "updatedAt": 1788595282841
 }
