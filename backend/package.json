@@ -1,0 +1,15 @@
+{
+  "name": "expense-splitter-backend",
+  "version": "1.0.0",
+  "description": "Backend API for splitting group expenses and tracking who owes who",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
