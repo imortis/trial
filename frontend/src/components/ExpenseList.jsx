@@ -12,8 +12,9 @@ import {
   Film,
   Calendar,
   Users,
-  CheckCircle2,
+  AlertTriangle,
   Loader2,
+  X,
 } from 'lucide-react';
 
 function getCategoryIcon(desc = '') {
@@ -66,7 +67,7 @@ export default function ExpenseList({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [personFilter, setPersonFilter] = useState('ALL');
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
 
   // Filter expenses based on search and member selection
   const filteredExpenses = expenses.filter((e) => {
@@ -84,8 +85,85 @@ export default function ExpenseList({
     return matchesSearch && matchesPerson;
   });
 
+  const handleConfirmDelete = async () => {
+    if (!expenseToDelete) return;
+    const id = expenseToDelete.id;
+    await onDeleteExpense(id);
+    setExpenseToDelete(null);
+  };
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 relative">
+      {/* Delete Confirmation Modal Dialog */}
+      {expenseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95">
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <button
+                onClick={() => setExpenseToDelete(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900 mb-1.5">
+              Delete this expense?
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Are you sure you want to delete <strong className="text-slate-800 font-semibold">"{expenseToDelete.description}"</strong>? Group balances and debt settlements will be automatically recalculated.
+            </p>
+
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs mb-5 space-y-1">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Amount:</span>
+                <span className="font-bold text-slate-900">${Number(expenseToDelete.amount).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Paid by:</span>
+                <span className="font-medium text-slate-800">{expenseToDelete.paidBy}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Split among:</span>
+                <span className="font-medium text-slate-800">{expenseToDelete.splitBetween?.join(', ')}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setExpenseToDelete(null)}
+                disabled={deletingId === expenseToDelete.id}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={deletingId === expenseToDelete.id}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+              >
+                {deletingId === expenseToDelete.id ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete Expense</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
@@ -95,7 +173,7 @@ export default function ExpenseList({
               {filteredExpenses.length}
             </span>
           </h2>
-          <p className="text-xs text-slate-500">All recorded transactions and split details</p>
+          <p className="text-xs text-slate-500">All recorded transactions with edit & delete controls</p>
         </div>
 
         {/* Search and Member Filter */}
@@ -139,8 +217,8 @@ export default function ExpenseList({
           </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             {expenses.length === 0
-              ? 'Add your first group expense using the form to start tracking balances and settlements.'
-              : 'Try clearing your search query or person filter to view all expenses.'}
+              ? 'Add your first group expense using the form above to track balances and settlements.'
+              : 'Try clearing your search query or member filter to view all expenses.'}
           </p>
         </div>
       ) : (
@@ -149,7 +227,6 @@ export default function ExpenseList({
             const splitCount = expense.splitBetween?.length || 1;
             const perPerson = (expense.amount / splitCount).toFixed(2);
             const isDeleting = deletingId === expense.id;
-            const isConfirming = confirmDeleteId === expense.id;
 
             return (
               <div
@@ -190,7 +267,7 @@ export default function ExpenseList({
                 </div>
 
                 {/* Right: Amount & Actions */}
-                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pl-13 sm:pl-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pl-13 sm:pl-0">
                   <div className="text-left sm:text-right">
                     <div className="text-base font-bold text-slate-900">
                       ${Number(expense.amount).toFixed(2)}
@@ -200,41 +277,17 @@ export default function ExpenseList({
                     </div>
                   </div>
 
-                  {/* Delete Button / Confirm */}
-                  <div className="flex items-center">
-                    {isConfirming ? (
-                      <div className="flex items-center gap-1.5 bg-rose-50 p-1 rounded-lg border border-rose-200">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setConfirmDeleteId(null);
-                            onDeleteExpense(expense.id);
-                          }}
-                          disabled={isDeleting}
-                          className="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-semibold rounded-md transition-colors"
-                        >
-                          {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Confirm'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteId(null)}
-                          className="px-2 py-1 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-semibold rounded-md transition-colors border border-slate-200"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDeleteId(expense.id)}
-                        disabled={isDeleting}
-                        title="Delete expense"
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                  {/* Prominent Delete Action Button */}
+                  <button
+                    type="button"
+                    onClick={() => setExpenseToDelete(expense)}
+                    disabled={isDeleting}
+                    title="Delete this expense"
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200/60 rounded-xl transition-all shadow-2xs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                    <span className="hidden sm:inline">Delete</span>
+                  </button>
                 </div>
               </div>
             );
