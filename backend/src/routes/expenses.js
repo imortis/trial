@@ -45,6 +45,32 @@ router.get('/', (req, res) => {
   res.json(store.listExpenses());
 });
 
+function csvEscape(value) {
+  const str = String(value ?? '');
+  if (/[",\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+router.get('/export/csv', (req, res) => {
+  const header = ['id', 'description', 'amount', 'paidBy', 'splitBetween', 'createdAt'];
+  const rows = store.listExpenses().map((e) => [
+    e.id,
+    e.description,
+    e.amount,
+    e.paidBy,
+    (e.splitBetween || []).join('; '),
+    e.createdAt,
+  ]);
+
+  const csv = [header, ...rows].map((row) => row.map(csvEscape).join(',')).join('\r\n');
+
+  res.header('Content-Type', 'text/csv; charset=utf-8');
+  res.header('Content-Disposition', 'attachment; filename="expenses.csv"');
+  res.send(csv);
+});
+
 router.get('/:id', (req, res) => {
   const expense = store.getExpense(req.params.id);
   if (!expense) return res.status(404).json({ error: 'expense not found' });

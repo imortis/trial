@@ -57,4 +57,8 @@ export const api = {
     const res = await fetch(`${API_BASE}/people`);
     return handleResponse(res);
   },
+
+  getExpensesCsvUrl() {
+    return `${API_BASE}/expenses/export/csv`;
+  },
 };

@@ -1,9 +1,6 @@
 #!/usr/bin/env node
-// Claude Code PreToolUse hook - fires right before Edit/Write, not just once
-// at session start. Pure Node - no bash dependency. Addresses a real bug we
-// hit: a session-start-only snapshot goes stale in a long session, so a
-// teammate can push a change to a file you're about to edit and you'd never
-// know until it broke something.
+// Claude Code PreToolUse hook - fires right before Edit/Write. Pure Node -
+// no bash dependency.
 //
 // Register in .claude/settings.json:
 //   { "hooks": { "PreToolUse": [{ "matcher": "Edit|Write", "hooks": [
@@ -11,11 +8,29 @@
 //   ] }] } }
 // (Written automatically by `hub-server init`.)
 //
-// Claude Code passes the tool call as JSON on stdin, e.g.
-//   {"tool_name": "Edit", "tool_input": {"file_path": "..."}}
-// Verify this shape against your installed version - it's evolved before.
+// Two jobs:
+// 1. GATE: if no hub-server tool has been called recently in this repo,
+//    DENY the edit and tell the model to call get_handoff_brief first. This
+//    exists because we found - via a real, live-tested run - that an agent
+//    given a plain feature request will simply skip the coordination tools
+//    entirely even when a SessionStart hook already injected an explicit
+//    instruction to use them. Hooks cannot see or gate MCP tool calls
+//    directly (only built-in tools), so the MCP server itself leaves a
+//    local marker file on every tool call, and this hook checks it.
+// 2. ADVISORY: once past the gate, a fast per-file freshness check (real
+//    commits from anyone else touching this exact file recently, or a note
+//    whose anchor says the file has changed since).
+//
+// Known limitation (confirmed, not theoretical): a model blocked here can
+// still route around via Bash instead of Edit/Write - this raises the bar,
+// it isn't airtight. Also two open Claude Code bugs mean `deny` sometimes
+// gets silently ignored specifically for Edit - if this gate doesn't seem
+// to be working, that's a known upstream issue, not necessarily this script.
 
 import { runHubServer } from "../lib/run-hub-server.mjs";
+import { activeWithinMs } from "../lib/session-marker.mjs";
+
+const GATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -25,6 +40,18 @@ function readStdin() {
     process.stdin.on("end", () => resolve(data));
     process.stdin.on("error", () => resolve(""));
   });
+}
+
+function deny(reason) {
+  console.log(
+    JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+        permissionDecisionReason: reason,
+      },
+    })
+  );
 }
 
 const raw = await readStdin();
@@ -38,6 +65,17 @@ try {
 }
 if (!filePath) process.exit(0);
 
+// Gate: has this repo's coordination tools been used recently?
+if (!activeWithinMs(process.cwd(), GATE_WINDOW_MS)) {
+  deny(
+    "hub-server: call get_handoff_brief first. This repo is shared with teammates using their own AI agents - " +
+      "editing without checking current tasks/plan/recent changes risks duplicating or conflicting with work already " +
+      "in progress. Call get_handoff_brief, then retry this edit."
+  );
+  process.exit(0);
+}
+
+// Advisory: fast per-file freshness check, non-blocking.
 let result;
 try {
   const output = runHubServer(["check-file", filePath]);

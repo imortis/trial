@@ -182,6 +182,7 @@ export default function App() {
               knownPeople={people}
               onDeleteExpense={handleDeleteExpense}
               deletingId={deletingId}
+              exportUrl={api.getExpensesCsvUrl()}
             />
           </div>
 

@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Loader2,
   X,
+  Download,
 } from 'lucide-react';
 
 function getCategoryIcon(desc = '') {
@@ -64,6 +65,7 @@ export default function ExpenseList({
   knownPeople = [],
   onDeleteExpense,
   deletingId,
+  exportUrl,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [personFilter, setPersonFilter] = useState('ALL');
@@ -202,6 +204,18 @@ export default function ExpenseList({
                 </option>
               ))}
             </select>
+          )}
+
+          {exportUrl && expenses.length > 0 && (
+            <a
+              href={exportUrl}
+              download="expenses.csv"
+              title="Export all expenses as CSV"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors shrink-0"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </a>
           )}
         </div>
       </div>
