@@ -6,12 +6,12 @@
     "backend/src/app.js",
     "backend/package.json"
   ],
-  "status": "todo",
-  "owner": null,
+  "status": "claimed",
+  "owner": "imortis",
   "declaredInterface": "React SPA on Vite dev server (proxying /api to backend :3001 or calling :3001 directly with CORS)",
   "assumptions": "Frontend built with React + Vite + Tailwind/modern CSS (or lightweight modern stack) communicating with the Express backend on port 3001. Features: Add Expense form with dynamic participants, Expenses list with delete action, Balances summary showing net balances and simplified debt settlement list, and quick suggestions for participants.",
   "completion": null,
   "abandonReason": null,
   "createdAt": 1788594057554,
-  "updatedAt": 1788594057554
+  "updatedAt": 1788594075136
 }
