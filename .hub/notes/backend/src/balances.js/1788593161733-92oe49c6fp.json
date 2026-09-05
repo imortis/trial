@@ -1,0 +1,12 @@
+{
+  "id": "92oe49c6fp",
+  "member": "imortis",
+  "filePath": "backend/src/balances.js",
+  "summary": "Net-balance + debt-simplification logic, pure functions, cents-based math",
+  "reasoning": "Kept separate from store/routes so it's independently unit-testable and DB-agnostic. Uses integer cents to avoid float rounding; simplifyDebts does greedy largest-vs-largest matching to minimize settle-up transactions rather than exposing a full pairwise ledger.",
+  "anchor": {
+    "path": "backend/src/balances.js",
+    "commitHash": "7c6c9b34b513e8570a1ba56b5adf265a2eb72a00"
+  },
+  "createdAt": 1788593161733
+}
