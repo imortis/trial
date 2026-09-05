@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FocusFlow — Timer</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <nav class="app-nav">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"></span>
+      FocusFlow
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Timer</a>
+      <a href="tasks.html">Tasks</a>
+      <a href="stats.html">Stats</a>
+      <a href="settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <main class="card timer-card">
+    <div class="mode-tabs" role="tablist" aria-label="Timer mode">
+      <button class="mode-tab" data-mode="focus" type="button">Focus</button>
+      <button class="mode-tab" data-mode="short" type="button">Short Break</button>
+      <button class="mode-tab" data-mode="long" type="button">Long Break</button>
+    </div>
+
+    <div class="ring-wrap">
+      <svg viewBox="0 0 200 200">
+        <circle class="ring-bg" cx="100" cy="100" r="90"></circle>
+        <circle id="ring-progress" class="ring-progress" cx="100" cy="100" r="90"></circle>
+      </svg>
+      <div class="ring-center">
+        <div id="time-display" class="time-display">25:00</div>
+        <div id="mode-label" class="mode-label">Focus</div>
+      </div>
+    </div>
+
+    <input id="task-input" class="task-input" type="text" placeholder="What are you focusing on?" maxlength="80" />
+
+    <div class="controls">
+      <button id="reset-btn" class="btn btn-ghost" type="button">Reset</button>
+      <button id="start-btn" class="btn btn-primary" type="button">Start</button>
+      <button id="skip-btn" class="btn btn-ghost" type="button">Skip</button>
+    </div>
+
+    <div id="session-dots" class="session-dots"></div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const modeMeta = {
+    focus: { label: 'Focus', key: 'focusMin', color: 'var(--accent)' },
+    short: { label: 'Short Break', key: 'shortBreakMin', color: '#2ecc9a' },
+    long: { label: 'Long Break', key: 'longBreakMin', color: '#4a9de8' },
+  };
+
+  let settings = ffGetSettings();
+  let tickInterval = null;
+
+  const state = {
+    mode: 'focus',
+    running: false,
+    remaining: 0,
+    endAt: null,
+    focusCount: 0,
+  };
+
+  const els = {
+    time: document.getElementById('time-display'),
+    ring: document.getElementById('ring-progress'),
+    modeLabel: document.getElementById('mode-label'),
+    startBtn: document.getElementById('start-btn'),
+    resetBtn: document.getElementById('reset-btn'),
+    skipBtn: document.getElementById('skip-btn'),
+    tabs: document.querySelectorAll('.mode-tab'),
+    taskInput: document.getElementById('task-input'),
+    dots: document.getElementById('session-dots'),
+    container: document.querySelector('.timer-card'),
+  };
+
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 90;
+  els.ring.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
+
+  function durationFor(mode) {
+    return Math.max(1, settings[modeMeta[mode].key]) * 60;
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(FF_STATE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(FF_STATE_KEY, JSON.stringify(state));
+  }
+
+  function switchMode(mode, { resetRunning = true } = {}) {
+    state.mode = mode;
+    state.remaining = durationFor(mode);
+    state.endAt = null;
+    if (resetRunning) state.running = false;
+    saveState();
+    render();
+  }
+
+  function init() {
+    const saved = loadState();
+    if (saved) {
+      Object.assign(state, saved);
+      if (state.running && state.endAt) {
+        const remaining = Math.round((state.endAt - Date.now()) / 1000);
+        if (remaining <= 0) {
+          state.running = false;
+          state.remaining = 0;
+          handleSessionEnd(true);
+        } else {
+          state.remaining = remaining;
+        }
+      }
+    } else {
+      state.remaining = durationFor(state.mode);
+    }
+    render();
+    if (state.running) startTicking();
+  }
+
+  function render() {
+    const meta = modeMeta[state.mode];
+    els.time.textContent = ffFormatTime(state.remaining);
+    els.modeLabel.textContent = meta.label;
+    document.title = `${ffFormatTime(state.remaining)} · ${meta.label} — FocusFlow`;
+    els.tabs.forEach((t) => t.classList.toggle('active', t.dataset.mode === state.mode));
+    els.container.style.setProperty('--mode-color', meta.color);
+
+    const total = durationFor(state.mode);
+    const fraction = total > 0 ? 1 - state.remaining / total : 0;
+    els.ring.style.strokeDashoffset = `${RING_CIRCUMFERENCE * (1 - fraction)}`;
+
+    els.startBtn.textContent = state.running ? 'Pause' : 'Start';
+    els.startBtn.classList.toggle('running', state.running);
+    renderDots();
+  }
+
+  function renderDots() {
+    const interval = Math.max(1, settings.longBreakInterval);
+    els.dots.innerHTML = '';
+    for (let i = 0; i < interval; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'dot' + (i < state.focusCount % interval ? ' filled' : '');
+      els.dots.appendChild(dot);
+    }
+  }
+
+  function startTicking() {
+    clearInterval(tickInterval);
+    tickInterval = setInterval(tick, 250);
+  }
+
+  function tick() {
+    if (!state.running || !state.endAt) return;
+    const remaining = Math.max(0, Math.round((state.endAt - Date.now()) / 1000));
+    state.remaining = remaining;
+    if (remaining <= 0) {
+      clearInterval(tickInterval);
+      state.running = false;
+      handleSessionEnd(false);
+      return;
+    }
+    render();
+  }
+
+  function handleSessionEnd(silent) {
+    const finishedMode = state.mode;
+    if (finishedMode === 'focus') {
+      state.focusCount += 1;
+    }
+    saveState();
+
+    if (!silent) {
+      if (settings.soundEnabled) ffPlayChime();
+      if (settings.notifyEnabled) {
+        ffNotify(
+          'FocusFlow',
+          finishedMode === 'focus' ? 'Focus session complete — take a break!' : 'Break over — back to focus.'
+        );
+      }
+    }
+
+    const interval = Math.max(1, settings.longBreakInterval);
+    let nextMode;
+    if (finishedMode === 'focus') {
+      nextMode = state.focusCount % interval === 0 ? 'long' : 'short';
+    } else {
+      nextMode = 'focus';
+    }
+    switchMode(nextMode, { resetRunning: !settings.autoStart });
+    if (settings.autoStart) startTimer();
+  }
+
+  function startTimer() {
+    if (state.running) return;
+    if (settings.notifyEnabled && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    state.running = true;
+    state.endAt = Date.now() + state.remaining * 1000;
+    saveState();
+    render();
+    startTicking();
+  }
+
+  function pauseTimer() {
+    state.running = false;
+    state.endAt = null;
+    clearInterval(tickInterval);
+    saveState();
+    render();
+  }
+
+  function resetTimer() {
+    pauseTimer();
+    state.remaining = durationFor(state.mode);
+    saveState();
+    render();
+  }
+
+  els.startBtn.addEventListener('click', () => {
+    state.running ? pauseTimer() : startTimer();
+  });
+  els.resetBtn.addEventListener('click', resetTimer);
+  els.skipBtn.addEventListener('click', () => {
+    pauseTimer();
+    handleSessionEnd(true);
+  });
+  els.tabs.forEach((tab) => {
+    tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+  });
+
+  const TASK_KEY = 'focusflow_current_task';
+  els.taskInput.value = localStorage.getItem(TASK_KEY) || '';
+  els.taskInput.addEventListener('input', () => {
+    localStorage.setItem(TASK_KEY, els.taskInput.value);
+  });
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === FF_SETTINGS_KEY) {
+      settings = ffGetSettings();
+      ffApplyTheme(settings.theme);
+      if (!state.running) state.remaining = durationFor(state.mode);
+      render();
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

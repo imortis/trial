@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FocusFlow — Tasks</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <nav class="app-nav">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"></span>
+      FocusFlow
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Timer</a>
+      <a href="tasks.html" class="active">Tasks</a>
+      <a href="stats.html">Stats</a>
+      <a href="settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <main class="card">
+    <header class="card-header" style="margin-bottom: 24px;">
+      <h2 style="margin: 0;">Tasks</h2>
+    </header>
+    <div class="task-list-container">
+      <form id="task-form" style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <input type="text" id="new-task-input" class="task-input" placeholder="Add a new task..." required style="flex-grow: 1;" />
+        <button type="submit" class="btn btn-primary">Add</button>
+      </form>
+      <ul id="task-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+      </ul>
+    </div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const TASKS_KEY = 'focusflow_tasks';
+  const els = {
+    form: document.getElementById('task-form'),
+    input: document.getElementById('new-task-input'),
+    list: document.getElementById('task-list')
+  };
+
+  function getTasks() {
+    try {
+      return JSON.parse(localStorage.getItem(TASKS_KEY)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveTasks(tasks) {
+    localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  }
+
+  function renderTasks() {
+    const tasks = getTasks();
+    els.list.innerHTML = '';
+    if (tasks.length === 0) {
+      els.list.innerHTML = '<li style="color: var(--text-muted); text-align: center; padding: 16px 0;">No tasks yet.</li>';
+      return;
+    }
+    
+    tasks.forEach((task, idx) => {
+      const li = document.createElement('li');
+      li.style.display = 'flex';
+      li.style.alignItems = 'center';
+      li.style.gap = '12px';
+      li.style.padding = '12px';
+      li.style.background = 'var(--bg-secondary)';
+      li.style.borderRadius = '8px';
+      
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = task.done;
+      cb.style.width = '18px';
+      cb.style.height = '18px';
+      cb.style.accentColor = 'var(--accent)';
+      cb.addEventListener('change', () => {
+        const t = getTasks();
+        t[idx].done = cb.checked;
+        saveTasks(t);
+        renderTasks();
+      });
+
+      const span = document.createElement('span');
+      span.textContent = task.text;
+      span.style.flexGrow = '1';
+      span.style.fontSize = '1.1rem';
+      if (task.done) {
+        span.style.textDecoration = 'line-through';
+        span.style.color = 'var(--text-muted)';
+      }
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '×';
+      delBtn.className = 'btn btn-ghost';
+      delBtn.style.padding = '4px 8px';
+      delBtn.style.fontSize = '1.2rem';
+      delBtn.style.lineHeight = '1';
+      delBtn.addEventListener('click', () => {
+        const t = getTasks();
+        t.splice(idx, 1);
+        saveTasks(t);
+        renderTasks();
+      });
+
+      li.appendChild(cb);
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      els.list.appendChild(li);
+    });
+  }
+
+  els.form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = els.input.value.trim();
+    if (!text) return;
+    const tasks = getTasks();
+    tasks.push({ text, done: false });
+    saveTasks(tasks);
+    els.input.value = '';
+    renderTasks();
+  });
+
+  renderTasks();
+</script>
+</body>
+</html>

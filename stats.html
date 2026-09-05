@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FocusFlow — Stats</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <nav class="app-nav">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"></span>
+      FocusFlow
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Timer</a>
+      <a href="tasks.html">Tasks</a>
+      <a href="stats.html" class="active">Stats</a>
+      <a href="settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <main class="card">
+    <header class="card-header" style="margin-bottom: 24px;">
+      <h2 style="margin: 0;">Statistics</h2>
+    </header>
+    <div class="stats-container" style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="stat-card" style="background: var(--bg-secondary); padding: 24px; border-radius: 8px; text-align: center;">
+        <div style="font-size: 3rem; font-weight: bold; color: var(--accent);" id="focus-count">0</div>
+        <div style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Focus Sessions Completed</div>
+      </div>
+      <div class="stat-card" style="background: var(--bg-secondary); padding: 24px; border-radius: 8px; text-align: center;">
+        <div style="font-size: 3rem; font-weight: bold; color: var(--accent);" id="focus-time">0</div>
+        <div style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Focus Minutes</div>
+      </div>
+      <div class="stat-card" style="background: var(--bg-secondary); padding: 24px; border-radius: 8px; text-align: center;">
+        <div style="font-size: 3rem; font-weight: bold; color: var(--accent);" id="tasks-completed">0</div>
+        <div style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Tasks Completed</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  function updateStats() {
+    let focusCount = 0;
+    try {
+      const stateRaw = localStorage.getItem(FF_STATE_KEY);
+      if (stateRaw) {
+        const state = JSON.parse(stateRaw);
+        focusCount = state.focusCount || 0;
+      }
+    } catch (e) {}
+
+    let tasksCompleted = 0;
+    try {
+      const tasksRaw = localStorage.getItem('focusflow_tasks');
+      if (tasksRaw) {
+        const tasks = JSON.parse(tasksRaw);
+        tasksCompleted = tasks.filter(t => t.done).length;
+      }
+    } catch (e) {}
+
+    const settings = ffGetSettings();
+    const focusMinutes = focusCount * (settings.focusMin || 25);
+
+    document.getElementById('focus-count').textContent = focusCount;
+    document.getElementById('focus-time').textContent = focusMinutes;
+    document.getElementById('tasks-completed').textContent = tasksCompleted;
+  }
+
+  updateStats();
+  
+  window.addEventListener('storage', (e) => {
+    if (e.key === FF_STATE_KEY || e.key === 'focusflow_tasks' || e.key === FF_SETTINGS_KEY) {
+      updateStats();
+    }
+  });
+</script>
+</body>
+</html>
