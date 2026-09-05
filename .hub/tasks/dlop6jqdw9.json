@@ -1,0 +1,17 @@
+{
+  "id": "dlop6jqdw9",
+  "title": "Update frontend to consume renamed balances.pairwise field",
+  "scope": [
+    "frontend/src/App.jsx",
+    "frontend/src/components/BalancesView.jsx",
+    "frontend/src/components/StatsCards.jsx"
+  ],
+  "status": "todo",
+  "owner": null,
+  "declaredInterface": "No new interface - frontend now reads `balances.pairwise` instead of the removed `balances.settlements`, matching the backend's GET /balances response shape after the pairwise-balances change.",
+  "assumptions": "Backend GET /balances was just changed (by me, this session) to return {net, pairwise} instead of {net, settlements}. The frontend (just pushed by a teammate) still references `settlements` in 3 files, which would silently break the Settle Up view. Fixing references only, not changing any UI/UX behavior.",
+  "completion": null,
+  "abandonReason": null,
+  "createdAt": 1788595070659,
+  "updatedAt": 1788595070659
+}
