@@ -1,11 +1,11 @@
 import React from 'react';
 import { DollarSign, ReceiptText, Users, ArrowRightLeft, TrendingUp } from 'lucide-react';
 
-export default function StatsCards({ expenses = [], balances = { net: {}, settlements: [] }, people = [] }) {
+export default function StatsCards({ expenses = [], balances = { net: {}, pairwise: [] }, people = [] }) {
   const totalSpend = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
   const expenseCount = expenses.length;
   const memberCount = people.length;
-  const settlementCount = balances?.settlements?.length || 0;
+  const settlementCount = balances?.pairwise?.length || 0;
 
   // Find top payer
   const payerTotals = {};
@@ -39,9 +39,9 @@ export default function StatsCards({ expenses = [], balances = { net: {}, settle
       bg: 'bg-blue-500/10 text-blue-600',
     },
     {
-      title: 'Simplified Settle-ups',
+      title: 'Open Balances',
       value: settlementCount,
-      subtitle: settlementCount === 0 ? 'All settled up! 🎉' : `${settlementCount} payment${settlementCount === 1 ? '' : 's'} to square off`,
+      subtitle: settlementCount === 0 ? 'All settled up! 🎉' : `${settlementCount} balance${settlementCount === 1 ? '' : 's'} to square off`,
       icon: ArrowRightLeft,
       color: 'emerald',
       bg: 'bg-emerald-500/10 text-emerald-600',

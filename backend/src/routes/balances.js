@@ -1,13 +1,14 @@
 const express = require('express');
 const store = require('../store');
-const { computeNetBalances, simplifyDebts } = require('../balances');
+const { computeNetBalances, computePairwiseBalances } = require('../balances');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  const net = computeNetBalances(store.listExpenses());
-  const settlements = simplifyDebts(net);
-  res.json({ net, settlements });
+  const expenses = store.listExpenses();
+  const net = computeNetBalances(expenses);
+  const pairwise = computePairwiseBalances(expenses);
+  res.json({ net, pairwise });
 });
 
 module.exports = router;

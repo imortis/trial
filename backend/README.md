@@ -38,11 +38,11 @@ List every distinct name that has appeared in an expense (as payer or participan
 ```json
 {
   "net": { "Alice": 10, "Bob": 0, "Carol": -10 },
-  "settlements": [{ "from": "Carol", "to": "Alice", "amount": 10 }]
+  "pairwise": [{ "from": "Carol", "to": "Alice", "amount": 10 }]
 }
 ```
-- `net`: each person's overall balance (positive = owed money, negative = owes money).
-- `settlements`: a minimal set of "who pays who how much" transactions that settle all balances.
+- `net`: each person's overall balance across everyone (positive = owed money, negative = owes money).
+- `pairwise`: the net balance between each pair of people who've shared an expense, e.g. "Carol owes Alice $10". This is a direct, unsimplified debt between the two — it never routes money through a third person, even if that would reduce the number of payments.
 
 ## Notes
 - Data is in-memory only — it resets when the server restarts. Swap `src/store.js` for a real DB later without touching the routes or balance logic.

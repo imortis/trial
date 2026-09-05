@@ -16,7 +16,7 @@ import {
 
 export default function App() {
   const [expenses, setExpenses] = useState([]);
-  const [balances, setBalances] = useState({ net: {}, settlements: [] });
+  const [balances, setBalances] = useState({ net: {}, pairwise: [] });
   const [people, setPeople] = useState([]);
   const [isOnline, setIsOnline] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +53,7 @@ export default function App() {
       ]);
 
       setExpenses(expensesData || []);
-      setBalances(balancesData || { net: {}, settlements: [] });
+      setBalances(balancesData || { net: {}, pairwise: [] });
       setPeople(peopleData || []);
     } catch (err) {
       console.error('Failed to sync with backend:', err);

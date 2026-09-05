@@ -11,11 +11,11 @@ import {
   UserCheck,
 } from 'lucide-react';
 
-export default function BalancesView({ balances = { net: {}, settlements: [] } }) {
+export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('settlements'); // 'settlements' | 'net'
 
-  const settlements = balances?.settlements || [];
+  const settlements = balances?.pairwise || [];
   const netEntries = Object.entries(balances?.net || {}).sort((a, b) => b[1] - a[1]);
 
   const copySettlementsSummary = () => {
@@ -45,7 +45,7 @@ export default function BalancesView({ balances = { net: {}, settlements: [] } }
             <span>Balances & Settlement</span>
           </h2>
           <p className="text-xs text-slate-500">
-            Greedy debt minimization & net member standing
+            Direct pairwise balances & net member standing
           </p>
         </div>
 
@@ -90,13 +90,13 @@ export default function BalancesView({ balances = { net: {}, settlements: [] } }
                 Everyone is fully settled up!
               </h3>
               <p className="text-xs text-emerald-700 max-w-xs mx-auto">
-                No debts remaining among group members. Add more expenses to see simplified payments.
+                No debts remaining among group members. Add more expenses to see balances.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                <span>Minimum transactions required to square all debts:</span>
+                <span>Balances between people who've shared an expense:</span>
                 <button
                   type="button"
                   onClick={copySettlementsSummary}

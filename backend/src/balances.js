@@ -38,41 +38,48 @@ function computeNetBalances(expenses) {
   return result;
 }
 
-// Reduces net balances to a minimal set of settle-up transactions
-// (greedy match of largest debtor to largest creditor).
-function simplifyDebts(netBalancesByPerson) {
-  const creditors = [];
-  const debtors = [];
+// Direct, unsimplified balance between each pair of people who have shared
+// an expense: how much one person owes the other, netted across every
+// expense that involved both of them. Unlike a global debt-minimization
+// pass, this never routes money through a third person.
+function computePairwiseBalances(expenses) {
+  const owedCents = new Map(); // `${debtor}||${creditor}` -> cents debtor owes creditor
+  const addOwed = (debtor, creditor, delta) => {
+    const key = `${debtor}||${creditor}`;
+    owedCents.set(key, (owedCents.get(key) || 0) + delta);
+  };
 
-  for (const [person, amount] of Object.entries(netBalancesByPerson)) {
-    const cents = toCents(amount);
-    if (cents > 0) creditors.push({ person, cents });
-    else if (cents < 0) debtors.push({ person, cents: -cents });
+  for (const { amount, paidBy, splitBetween } of expenses) {
+    const totalCents = toCents(amount);
+    const n = splitBetween.length;
+    const baseShare = Math.floor(totalCents / n);
+    const remainder = totalCents - baseShare * n;
+
+    splitBetween.forEach((person, i) => {
+      if (person === paidBy) return; // no debt owed to yourself
+      const share = baseShare + (i < remainder ? 1 : 0);
+      addOwed(person, paidBy, share);
+    });
   }
 
-  creditors.sort((a, b) => b.cents - a.cents);
-  debtors.sort((a, b) => b.cents - a.cents);
+  const seenPairs = new Set();
+  const balances = [];
 
-  const transactions = [];
-  let i = 0;
-  let j = 0;
-  while (i < debtors.length && j < creditors.length) {
-    const debtor = debtors[i];
-    const creditor = creditors[j];
-    const settled = Math.min(debtor.cents, creditor.cents);
+  for (const key of owedCents.keys()) {
+    const [a, b] = key.split('||');
+    const pairKey = [a, b].sort().join('||');
+    if (seenPairs.has(pairKey)) continue;
+    seenPairs.add(pairKey);
 
-    if (settled > 0) {
-      transactions.push({ from: debtor.person, to: creditor.person, amount: toDollars(settled) });
-    }
+    const aOwesB = owedCents.get(`${a}||${b}`) || 0;
+    const bOwesA = owedCents.get(`${b}||${a}`) || 0;
+    const net = aOwesB - bOwesA;
 
-    debtor.cents -= settled;
-    creditor.cents -= settled;
-
-    if (debtor.cents === 0) i += 1;
-    if (creditor.cents === 0) j += 1;
+    if (net > 0) balances.push({ from: a, to: b, amount: toDollars(net) });
+    else if (net < 0) balances.push({ from: b, to: a, amount: toDollars(-net) });
   }
 
-  return transactions;
+  return balances.sort((x, y) => x.from.localeCompare(y.from) || x.to.localeCompare(y.to));
 }
 
-module.exports = { computeNetBalances, simplifyDebts };
+module.exports = { computeNetBalances, computePairwiseBalances };

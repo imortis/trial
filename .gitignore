@@ -7,6 +7,9 @@ frontend/node_modules/
 frontend/dist/
 dist/
 
+# Test tooling artifacts
+.playwright-mcp/
+
 # Logs
 *.log
 npm-debug.log*
