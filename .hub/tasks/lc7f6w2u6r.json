@@ -5,12 +5,33 @@
     "frontend/src/components/BalancesView.jsx",
     "frontend/src/components/MemberBalancesSummary.jsx"
   ],
-  "status": "in_progress",
+  "status": "done",
   "owner": null,
   "declaredInterface": "No interface change - internal fix only, reading balances.pairwise instead of the nonexistent balances.settlements.",
   "assumptions": "A teammate's recent commit (adding MemberBalancesSummary.jsx and reworking BalancesView.jsx tabs) was based on an older copy of BalancesView.jsx and reintroduced `balances.settlements`, which the backend stopped returning earlier this session (renamed to `pairwise`). This silently breaks the Settle Up tab and per-member outgoing/incoming lists (always empty). Fixing field references only, not touching the new summary UI/UX.",
-  "completion": null,
+  "completion": {
+    "whatWasBuilt": "Fixed a regression in BalancesView.jsx and the new MemberBalancesSummary.jsx where a teammate's concurrent commit reintroduced references to balances.settlements, a field the backend no longer returns (renamed to balances.pairwise earlier this session). Both now read balances.pairwise; also updated leftover copy describing 'minimal transactions'/'simplified payments' since the backend no longer minimizes.",
+    "decisions": [
+      {
+        "decision": "Fixed field references only, did not touch the new Summary tab UI/UX that the teammate built",
+        "why": "Their work (MemberBalancesSummary.jsx, 3-tab BalancesView) is a legitimate feature addition; only the data field name was stale",
+        "alternativesConsidered": "None - straightforward fix"
+      }
+    ],
+    "filesChanged": [
+      {
+        "path": "frontend/src/components/BalancesView.jsx",
+        "purpose": "Reads balances.pairwise instead of balances.settlements; fixed descriptive copy"
+      },
+      {
+        "path": "frontend/src/components/MemberBalancesSummary.jsx",
+        "purpose": "Reads balances.pairwise instead of balances.settlements for each member's incoming/outgoing balance list"
+      }
+    ],
+    "knownLimitations": "None - verified with npm run build (succeeds) and confirmed no remaining balances.settlements references anywhere in frontend/src.",
+    "nextSteps": "None."
+  },
   "abandonReason": null,
   "createdAt": 1788595795849,
-  "updatedAt": 1788595833341
+  "updatedAt": 1788595888594
 }
