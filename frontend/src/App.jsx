@@ -187,7 +187,11 @@ export default function App() {
 
           {/* Right / Sidebar Column (Balances & Debt Settlements) */}
           <div className="lg:col-span-5 space-y-6 sticky top-20">
-            <BalancesView balances={balances} />
+            <BalancesView
+              balances={balances}
+              expenses={expenses}
+              people={people}
+            />
           </div>
         </div>
       </main>

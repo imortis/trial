@@ -9,13 +9,19 @@ import {
   TrendingDown,
   TrendingUp,
   UserCheck,
+  Users,
 } from 'lucide-react';
+import MemberBalancesSummary from './MemberBalancesSummary';
 
-export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
+export default function BalancesView({
+  balances = { net: {}, settlements: [] },
+  expenses = [],
+  people = [],
+}) {
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState('settlements'); // 'settlements' | 'net'
+  const [activeTab, setActiveTab] = useState('summary'); // 'summary' | 'settlements' | 'net'
 
-  const settlements = balances?.pairwise || [];
+  const settlements = balances?.settlements || [];
   const netEntries = Object.entries(balances?.net || {}).sort((a, b) => b[1] - a[1]);
 
   const copySettlementsSummary = () => {
@@ -38,23 +44,38 @@ export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
       {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Scale className="w-5 h-5 text-indigo-600" />
-            <span>Balances & Settlement</span>
-          </h2>
-          <p className="text-xs text-slate-500">
-            Direct pairwise balances & net member standing
-          </p>
+      <div className="flex flex-col gap-3 mb-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Scale className="w-5 h-5 text-indigo-600" />
+              <span>Balances & Settle-Up</span>
+            </h2>
+            <p className="text-xs text-slate-500">
+              Overview of who paid, who owes, and simplified transfers
+            </p>
+          </div>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="flex items-center p-1 bg-slate-100 rounded-xl">
+        {/* 3-Way Tab Switcher */}
+        <div className="flex items-center p-1 bg-slate-100 rounded-xl overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab('summary')}
+            className={`flex-1 min-w-[100px] py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'summary'
+                ? 'bg-white text-indigo-700 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Summary ({people.length})</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('settlements')}
-            className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`flex-1 min-w-[100px] py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'settlements'
                 ? 'bg-white text-indigo-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -63,22 +84,32 @@ export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
             <ArrowRightLeft className="w-3.5 h-3.5" />
             <span>Settle Up ({settlements.length})</span>
           </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('net')}
-            className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`flex-1 min-w-[100px] py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'net'
                 ? 'bg-white text-indigo-700 shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>Net Balances ({netEntries.length})</span>
+            <span>Meters ({netEntries.length})</span>
           </button>
         </div>
       </div>
 
-      {/* Tab 1: Simplified Settlements ("Who Pays Who") */}
+      {/* Tab 1: Comprehensive Summary of Everyone's Balances */}
+      {activeTab === 'summary' && (
+        <MemberBalancesSummary
+          expenses={expenses}
+          balances={balances}
+          people={people}
+        />
+      )}
+
+      {/* Tab 2: Simplified Settlements ("Who Pays Who") */}
       {activeTab === 'settlements' && (
         <div>
           {settlements.length === 0 ? (
@@ -90,13 +121,13 @@ export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
                 Everyone is fully settled up!
               </h3>
               <p className="text-xs text-emerald-700 max-w-xs mx-auto">
-                No debts remaining among group members. Add more expenses to see balances.
+                No debts remaining among group members. Add more expenses to see simplified payments.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                <span>Balances between people who've shared an expense:</span>
+                <span>Minimal transactions to clear all debts:</span>
                 <button
                   type="button"
                   onClick={copySettlementsSummary}
@@ -162,7 +193,7 @@ export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
         </div>
       )}
 
-      {/* Tab 2: Net Balances per Person */}
+      {/* Tab 3: Net Balances per Person */}
       {activeTab === 'net' && (
         <div>
           {netEntries.length === 0 ? (
@@ -172,8 +203,8 @@ export default function BalancesView({ balances = { net: {}, pairwise: [] } }) {
           ) : (
             <div className="space-y-3">
               {netEntries.map(([name, netAmount]) => {
-                const isPositive = netAmount > 0;
-                const isZero = Math.abs(netAmount) < 0.001;
+                const isPositive = netAmount > 0.005;
+                const isZero = Math.abs(netAmount) <= 0.005;
                 const absAmt = Math.abs(netAmount).toFixed(2);
                 const barWidth = `${Math.min(100, (Math.abs(netAmount) / maxAbsBalance) * 100)}%`;
 
