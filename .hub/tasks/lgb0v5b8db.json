@@ -7,12 +7,50 @@
     "backend/test/balances.test.js",
     "backend/README.md"
   ],
-  "status": "in_progress",
+  "status": "done",
   "owner": null,
   "declaredInterface": "GET /balances -> {net: {person: amount}, pairwise: [{from, to, amount}]} (replaces the greedy-minimized `settlements` list with direct pairwise net balances between each pair of people)",
   "assumptions": "User asked to replace the transaction-minimizing settle-up algorithm with straightforward pairwise balances (net debt between each pair of people who've shared an expense together), dropping simplifyDebts.",
-  "completion": null,
+  "completion": {
+    "whatWasBuilt": "Replaced the greedy transaction-minimizing settle-up algorithm in GET /balances with straightforward pairwise balances: for each pair of people who've shared an expense, the net amount one owes the other, computed directly from expense history rather than routed through a third person.",
+    "decisions": [
+      {
+        "decision": "computePairwiseBalances replaces simplifyDebts entirely",
+        "why": "User explicitly asked for simple pairwise balances instead of transaction minimization",
+        "alternativesConsidered": "Keeping both and exposing two fields; rejected as unnecessary complexity the user didn't ask for"
+      },
+      {
+        "decision": "GET /balances response field renamed from `settlements` to `pairwise`",
+        "why": "Name should reflect what it now represents (direct pairwise debts, not a minimized settle-up plan)",
+        "alternativesConsidered": "Keeping the `settlements` name for backward compatibility - not warranted, no external consumers yet"
+      },
+      {
+        "decision": "`net` (overall per-person balance) is kept alongside `pairwise`",
+        "why": "Still useful summary info and wasn't part of what the user asked to change"
+      }
+    ],
+    "filesChanged": [
+      {
+        "path": "backend/src/balances.js",
+        "purpose": "computeNetBalances unchanged; simplifyDebts removed and replaced with computePairwiseBalances (direct per-pair net debt, no third-party routing)"
+      },
+      {
+        "path": "backend/src/routes/balances.js",
+        "purpose": "GET /balances now returns {net, pairwise} instead of {net, settlements}"
+      },
+      {
+        "path": "backend/test/balances.test.js",
+        "purpose": "Replaced simplifyDebts tests with pairwise tests, including a case proving debt is never routed through a third person"
+      },
+      {
+        "path": "backend/README.md",
+        "purpose": "Documented the new pairwise response shape"
+      }
+    ],
+    "knownLimitations": "Pairwise balances can produce more visible line items than a minimized settle-up plan would (e.g. A owes B and B owes C stay separate rather than collapsing) - that's the intended behavior per this change.",
+    "nextSteps": "None pending from this change; still waiting on frontend work."
+  },
   "abandonReason": null,
   "createdAt": 1788594851054,
-  "updatedAt": 1788594861608
+  "updatedAt": 1788594951932
 }
