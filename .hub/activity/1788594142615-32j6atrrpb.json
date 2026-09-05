@@ -1,0 +1,11 @@
+{
+  "id": "32j6atrrpb",
+  "member": "imortis",
+  "kind": "editing",
+  "detail": "Implementing CORS on backend and scaffolding React + Vite + Tailwind frontend application",
+  "files": [
+    "backend/src/app.js",
+    "frontend/"
+  ],
+  "createdAt": 1788594142615
+}
